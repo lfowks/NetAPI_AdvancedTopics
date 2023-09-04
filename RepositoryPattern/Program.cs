@@ -6,15 +6,29 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPattern.Middlewares;
+using RepositoryPattern.Notifications;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://127.0.0.1:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                      });
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,6 +36,7 @@ builder.Services.AddApplication();
 
 builder.Services.AddTransient<LoggingMiddleware>();
 builder.Services.AddTransient<NotifyMiddleware>();
+
 
 //JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -60,6 +75,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.UseAuthorization();
 
 
@@ -67,5 +84,8 @@ app.UseNotifyMiddleware();
 app.UseLogginMiddleware();
 
 app.MapControllers();
+
+
+app.MapHub<NotificationHub>(pattern: "notifications");
 
 app.Run();

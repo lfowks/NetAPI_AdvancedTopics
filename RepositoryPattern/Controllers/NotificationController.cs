@@ -27,10 +27,10 @@ namespace RepositoryPattern.Controllers
         }
 
         // GET api/<NotificationController>/5
-        [HttpGet("{id}")]
-        public async Task<string> GetAsync(int id)
+        [HttpGet("{text}")]
+        public async Task<string> GetAsync(string text)
         {
-            await _hub.Clients.All.SendAsync("MyChannel", "test");
+            await _hub.Clients.All.SendAsync("MyChannel", text);
 
             return "value";
         }

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Domain;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using RepositoryPattern.Notifications;
+using static System.Net.Mime.MediaTypeNames;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -37,8 +39,9 @@ namespace RepositoryPattern.Controllers
 
         // POST api/<NotificationController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task PostAsync([FromBody] User user)
         {
+            await _hub.Clients.All.SendAsync("MyChannel", user);
         }
 
         // PUT api/<NotificationController>/5
